@@ -4,6 +4,12 @@ This repository follows the general structure:
 
     personal-stat-tracker
     ├ client
-    | └ React content initialized using create-react-app
-    └ server
-      └ Server files
+    | └ React content found in gh/kkolyvek/personal-stat-tracker-frontend
+    ├ server
+    |  ├ config
+    |  ├ models
+    |  ├ schemas
+    |  ├ seeders
+    |  ├ utils
+    |  └ server.js
+    └ package.json
