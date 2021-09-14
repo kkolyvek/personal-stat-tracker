@@ -1,10 +1,12 @@
 # Personal Stat Tracker
 
+## This Project is Under Construction
+
 This repository follows the general structure:
 
     personal-stat-tracker
     ├ client
-    | └ React content found in gh/kkolyvek/personal-stat-tracker-frontend
+    | └ React app
     ├ server
     |  ├ config
     |  ├ models

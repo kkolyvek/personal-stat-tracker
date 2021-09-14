@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Group } from '@visx/group';
 import { scaleLinear, scaleUtc, scaleTime} from '@visx/scale';
 import { GridRows, GridColumns } from '@visx/grid';
-import { AxisBottom, AxisLeft } from '@visx/axis';
+import { AxisBottom, AxisLeft, AxisRight } from '@visx/axis';
 import { LinePath, Line } from '@visx/shape';
 import { curveMonotoneX } from '@visx/curve';
 import { withTooltip, useTooltip, useTooltipInPortal, TooltipWithBounds, Tooltip, defaultStyles } from '@visx/tooltip';
@@ -145,6 +145,7 @@ export default function Userchart () {
                     <GridColumns scale={xScale} height={height - 100} />
                     <AxisBottom top={height - 100} scale={xScale} numTicks={15} />
                     <AxisLeft scale={yScaleLeft} />
+                    <AxisRight scale={yScaleRight} />
                     <text x="-75" y="30" transform="rotate(-90)" fontSize={18}>
                         Calories
                     </text>
