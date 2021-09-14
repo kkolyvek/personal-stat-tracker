@@ -3,3 +3,4 @@
 .DS_Store
 .env
 .prettierignore
+package-lock.json
