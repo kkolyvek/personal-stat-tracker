@@ -1,0 +1,6 @@
+.loadingbar {
+  height: 2px;
+  background: #e8e8e8;
+
+  display: flex;
+}
