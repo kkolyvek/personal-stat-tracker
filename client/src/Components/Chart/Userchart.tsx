@@ -13,6 +13,7 @@ import { bisector } from 'd3-array';
 import { timeFormat } from 'd3-time-format';
 
 import './Userchart.css';
+import Chartdatatooltip from '../Chartdatatooltip/Chartdatatooltip.js';
 
 // ==================================================================================
 
@@ -39,9 +40,10 @@ for (let i=1; i<=28; i++) {
 const formatDate = timeFormat("%b %d, '%y");
 
 type TooltipData = typeof userData[0];
-const getDate = (d: typeof userData[0]) => new Date(d.date);
-const getCalories = (d: typeof userData[0]) => d.calories;
-const bisectDate = bisector<typeof userData[0], Date>(d => new Date(d.date)).left;
+const getDate = (d: TooltipData) => new Date(d.date);
+const getCalories = (d: TooltipData) => d.calories;
+const getWeight = (d: TooltipData) => d.weight;
+const bisectDate = bisector<TooltipData, Date>(d => new Date(d.date)).left;
 
 export type AreaProps = {
     width: number,
@@ -61,7 +63,7 @@ export default function Userchart () {
             new Date(userData[0].date),
             new Date(userData[userData.length - 1].date)
         ],
-        range: [0, width - 100],
+        range: [0, width],
     });
 
     const yScaleLeft = scaleLinear({
@@ -69,7 +71,7 @@ export default function Userchart () {
             Math.min(...userData.map(data => data.calories)) - 500,
             Math.max(...userData.map(data => data.calories)) + 500
         ],
-        range: [height - 100, 0],
+        range: [height, 0],
         round: true,
         nice: true
     });
@@ -79,7 +81,7 @@ export default function Userchart () {
             Math.min(...userData.map(data => data.weight)) - 20,
             Math.max(...userData.map(data => data.weight)) + 20
         ],
-        range: [height - 100, 0],
+        range: [height, 0],
         round: true,
         nice: true
     });
@@ -89,7 +91,6 @@ export default function Userchart () {
 
     const {
         containerRef,
-        containerBounds,
         TooltipInPortal
     } = useTooltipInPortal({
         scroll: true,
@@ -103,21 +104,27 @@ export default function Userchart () {
         tooltipOpen,
         showTooltip,
         hideTooltip,
-    } = useTooltip<TooltipData>();
+    } = useTooltip<TooltipData>({
+        // initial states
+        tooltipOpen: true,
+        tooltipLeft: 100,
+        tooltipTop: 100,
+        // TODO: add initial message here
+    });
 
     const handleTooltip = useCallback(
         (event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
             const { x } = localPoint(event) || { x: 0 };
             const x0 = xScale.invert(x);
             const index = bisectDate(userData, x0, 1);
-            const d0 = userData[index - 4];
-            const d1 = userData[index - 3];
+            const d0 = userData[index - 1];
+            const d1 = userData[index];
             let d = d0;
             if (d1 && getDate(d1) && d0 && getDate(d0)) {
                 d = x0.valueOf() - getDate(d0).valueOf() > getDate(d1).valueOf() - x0.valueOf() ? d1 : d0;
                 showTooltip({
                     tooltipLeft: x,
-                    tooltipTop: yScaleLeft(getCalories(d)) + 50,
+                    tooltipTop: yScaleLeft(getCalories(d)),
                     tooltipData: d
                 });
             };
@@ -137,27 +144,39 @@ export default function Userchart () {
                     onTouchStart={handleTooltip}
                     onTouchMove={handleTooltip}
                     onMouseMove={handleTooltip}
-                    // onMouseOver={handleTooltip}
-                    // onMouseLeave={() => hideTooltip()}
+                    onMouseOver={handleTooltip}
+                    onMouseLeave={() => hideTooltip()}
                 />
-                <Group top={50} left={50}>
-                    <GridRows scale={yScaleLeft} width={width - 100} />
-                    <GridColumns scale={xScale} height={height - 100} />
-                    <AxisBottom top={height - 100} scale={xScale} numTicks={15} />
-                    <AxisLeft scale={yScaleLeft} />
-                    <AxisRight scale={yScaleRight} />
-                    <text x="-75" y="30" transform="rotate(-90)" fontSize={18}>
+                <Group>
+                    <GridRows scale={yScaleLeft} width={width} />
+                    <GridColumns scale={xScale} height={height} />
+                    {/* <AxisBottom top={height-100} scale={xScale} numTicks={5} /> */}
+                    {/* <AxisLeft scale={yScaleLeft} /> */}
+                    {/* <text x="-75" y="30" transform="rotate(-90)" fontSize={18}>
                         Calories
-                    </text>
+                    </text> */}
 
+                    {/* ================ DATA ================ */}
                     {userData.map((data, index) => {
                         return (
-                            <circle 
+                            <circle
                                 key={index}
-                                r={3}
+                                r={1}
                                 cx={xScale(new Date(data.date))}
                                 cy={yScaleLeft(data.calories)}
-                                stroke="rgba(33,33,33,1)"
+                                stroke="rgba(0,0,255,1)"
+                                fill="transparent"
+                            />
+                        )
+                    })}
+                    {userData.map((data, index) => {
+                        return (
+                            <circle
+                                key={index}
+                                r={1}
+                                cx={xScale(new Date(data.date))}
+                                cy={yScaleRight(data.weight)}
+                                stroke="rgba(255,0,0,1)"
                                 fill="transparent"
                             />
                         )
@@ -167,25 +186,37 @@ export default function Userchart () {
                         x={data => xScale(new Date(data.date))}
                         y={data => yScaleLeft(data.calories)}
                         curve={curveMonotoneX}
-                        stroke="#222"
+                        stroke="blue"
                         strokeWidth={1.5}
                     />
+                    <LinePath
+                        data={userData}
+                        x={data => xScale(new Date(data.date))}
+                        y={data => yScaleRight(data.weight)}
+                        curve={curveMonotoneX}
+                        stroke="red"
+                        strokeWidth={1.5}
+                    />
+                    {/* ============== END DATA ============== */}
                 </Group>
 
                 {tooltipData && tooltipOpen && (
                     <>
                         <Line 
-                            from={{ x: tooltipLeft, y: height - 50 }}
-                            to={{ x: tooltipLeft, y: 50 }}
+                            from={{ x: tooltipLeft, y: height }}
+                            to={{ x: tooltipLeft, y: 0 }}
                             stroke={'#aaa'}
                             strokeWidth={2}
                             pointerEvents="none"
                         />
+                        {/* calorie data marker */}
                         <circle
                             cx={tooltipLeft}
                             cy={tooltipTop}
-                            r={3}
-                            fill={'black'}
+                            r={4}
+                            fill={'blue'}
+                            stroke={'white'}
+                            strokeWidth={2}
                             pointerEvents="none"
                         />
                     </>
@@ -196,15 +227,14 @@ export default function Userchart () {
                 <>
                     <TooltipInPortal
                         key={Math.random()}
-                        top={tooltipTop}
+                        top={height/8}
                         left={tooltipLeft}
-                        style={{
-                            ...defaultStyles,
-                            minWidth: 72,
-                            textAlign: 'center'
-                        }}
+                        className='data-tooltip'
                     >
-                        {getCalories(tooltipData)}
+                        <Chartdatatooltip
+                            calories={getCalories(tooltipData)}
+                            weight={getWeight(tooltipData)}
+                        />
                     </TooltipInPortal>
                     <TooltipInPortal
                         key={Math.random()}

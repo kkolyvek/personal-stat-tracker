@@ -1,0 +1,15 @@
+.data-tooltip-content-wrapper {
+    width: 150px;
+}
+
+.data-tooltip-data-title {
+    margin-bottom: 0.4em;
+}
+
+.data-tooltip-data {
+    margin-bottom: 0.6em;
+}
+
+.data-tooltip-data-last {
+    margin-bottom: auto;
+}
