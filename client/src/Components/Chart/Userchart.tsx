@@ -114,6 +114,8 @@ export default function Userchart () {
 
     const handleTooltip = useCallback(
         (event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
+            // TODO: add to tooltipData to cover other data highlighting
+
             const { x } = localPoint(event) || { x: 0 };
             const x0 = xScale.invert(x);
             const index = bisectDate(userData, x0, 1);
@@ -197,11 +199,12 @@ export default function Userchart () {
                         stroke="red"
                         strokeWidth={1.5}
                     />
-                    {/* ============== END DATA ============== */}
+                    {/* ================ DATA ================ */}
                 </Group>
 
                 {tooltipData && tooltipOpen && (
                     <>
+                    {/* =========== DATA HIGHLIGHT ON HOVER =========== */}
                         <Line 
                             from={{ x: tooltipLeft, y: height }}
                             to={{ x: tooltipLeft, y: 0 }}
@@ -212,13 +215,24 @@ export default function Userchart () {
                         {/* calorie data marker */}
                         <circle
                             cx={tooltipLeft}
-                            cy={tooltipTop}
+                            cy={yScaleLeft(getCalories(tooltipData))}
                             r={4}
                             fill={'blue'}
                             stroke={'white'}
                             strokeWidth={2}
                             pointerEvents="none"
                         />
+                        {/* weight data marker */}
+                        <circle
+                            cx={tooltipLeft}
+                            cy={yScaleRight(getWeight(tooltipData))}
+                            r={4}
+                            fill={'red'}
+                            stroke={'white'}
+                            strokeWidth={2}
+                            pointerEvents="none"
+                        />
+                    {/* =========  END DATA HIGHLIGHT ON HOVER ========= */}
                     </>
                 )}
             </svg>

@@ -6,7 +6,7 @@ This repository follows the general structure:
 
     personal-stat-tracker
     ├ client
-    | └ React app
+    |  └ React app
     ├ server
     |  ├ config
     |  ├ models
