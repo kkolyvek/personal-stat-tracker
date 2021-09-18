@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Group } from '@visx/group';
 import { scaleLinear, scaleUtc, scaleTime} from '@visx/scale';
 import { GridRows, GridColumns } from '@visx/grid';
@@ -33,6 +33,34 @@ for (let i=1; i<=28; i++) {
         calories: Math.floor(2000 + Math.random() * 200 + (i + 31) * 15)
     })
 };
+for (let i=1; i<=31; i++) {
+    userData.push({
+        date: i < 10 ? `03-0${i}-2021` : `03-${i}-2021`,
+        weight: Math.floor(195 + Math.random() * 10 + (i + 31) * 0.3),
+        calories: Math.floor(2000 + Math.random() * 200 + (i + 31) * 15)
+    })
+};
+for (let i=1; i<=30; i++) {
+    userData.push({
+        date: i < 10 ? `04-0${i}-2021` : `04-${i}-2021`,
+        weight: Math.floor(195 + Math.random() * 10 + (i + 31) * 0.3),
+        calories: Math.floor(2000 + Math.random() * 200 + (i + 31) * 15)
+    })
+};
+for (let i=1; i<=31; i++) {
+    userData.push({
+        date: i < 10 ? `05-0${i}-2021` : `05-${i}-2021`,
+        weight: Math.floor(195 + Math.random() * 10 + (i + 31) * 0.3),
+        calories: Math.floor(2000 + Math.random() * 200 + (i + 31) * 15)
+    })
+};
+for (let i=1; i<=30; i++) {
+    userData.push({
+        date: i < 10 ? `06-0${i}-2021` : `06-${i}-2021`,
+        weight: Math.floor(195 + Math.random() * 10 + (i + 31) * 0.3),
+        calories: Math.floor(2000 + Math.random() * 200 + (i + 31) * 15)
+    })
+};
 
 // UTILS, ACCESSORS
 // =============================================================================
@@ -50,12 +78,33 @@ export type AreaProps = {
     height: number
 };
 
-export default function Userchart () {
-    const width = 1920 / 1.5;
-    const height = 1080 / 1.5;
+export interface Props {
+    showCalories: boolean,
+    showWeight: boolean
+}
+
+export default function Userchart (props: Props) {
+    // make graph size responsize to client browser size - maintaining 1920p aspect ratio
+    const windowWidth = window.innerWidth;
+    const [graphDims, setGraphDims] = useState({
+        width: windowWidth > 1300 ? 1280 : windowWidth - 104,
+        height: windowWidth > 1300 ? 720 : 1080 * (windowWidth - 104) / 1920,
+    });
+    useEffect(() => {
+        const handleResize = () => {
+            setGraphDims({
+                width: windowWidth > 1300 ? 1280 : windowWidth - 104,
+                height: windowWidth > 1300 ? 720 : 1080 * (windowWidth - 104) / 1920,
+            });
+        };
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize)
+        };
+    }, [windowWidth])
 
     
-    // SCALING
+    // DATA SCALING
     // =============================================================================
 
     const xScale = scaleTime({
@@ -63,7 +112,7 @@ export default function Userchart () {
             new Date(userData[0].date),
             new Date(userData[userData.length - 1].date)
         ],
-        range: [0, width],
+        range: [0, graphDims.width],
     });
 
     const yScaleLeft = scaleLinear({
@@ -71,7 +120,7 @@ export default function Userchart () {
             Math.min(...userData.map(data => data.calories)) - 500,
             Math.max(...userData.map(data => data.calories)) + 500
         ],
-        range: [height, 0],
+        range: [graphDims.height, 0],
         round: true,
         nice: true
     });
@@ -81,7 +130,7 @@ export default function Userchart () {
             Math.min(...userData.map(data => data.weight)) - 20,
             Math.max(...userData.map(data => data.weight)) + 20
         ],
-        range: [height, 0],
+        range: [graphDims.height, 0],
         round: true,
         nice: true
     });
@@ -114,8 +163,6 @@ export default function Userchart () {
 
     const handleTooltip = useCallback(
         (event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
-            // TODO: add to tooltipData to cover other data highlighting
-
             const { x } = localPoint(event) || { x: 0 };
             const x0 = xScale.invert(x);
             const index = bisectDate(userData, x0, 1);
@@ -135,12 +182,12 @@ export default function Userchart () {
 
     return (
         <div className="chart-wrapper">
-            <svg className="chart" width={width} height={height} ref={containerRef} >
+            <svg className="chart" width={graphDims.width} height={graphDims.height} ref={containerRef} >
                 <rect
                     x={0}
                     y={0}
-                    width={width}
-                    height={height}
+                    width={graphDims.width}
+                    height={graphDims.height}
                     fill={'#e8e8e8'}
                     rx={14}
                     onTouchStart={handleTooltip}
@@ -150,8 +197,8 @@ export default function Userchart () {
                     onMouseLeave={() => hideTooltip()}
                 />
                 <Group>
-                    <GridRows scale={yScaleLeft} width={width} />
-                    <GridColumns scale={xScale} height={height} />
+                    <GridRows scale={yScaleLeft} width={graphDims.width} />
+                    <GridColumns scale={xScale} height={graphDims.height} />
                     {/* <AxisBottom top={height-100} scale={xScale} numTicks={5} /> */}
                     {/* <AxisLeft scale={yScaleLeft} /> */}
                     {/* <text x="-75" y="30" transform="rotate(-90)" fontSize={18}>
@@ -159,7 +206,7 @@ export default function Userchart () {
                     </text> */}
 
                     {/* ================ DATA ================ */}
-                    {userData.map((data, index) => {
+                    {props.showCalories && userData.map((data, index) => {
                         return (
                             <circle
                                 key={index}
@@ -171,7 +218,15 @@ export default function Userchart () {
                             />
                         )
                     })}
-                    {userData.map((data, index) => {
+                    {props.showCalories && <LinePath
+                        data={userData}
+                        x={data => xScale(new Date(data.date))}
+                        y={data => yScaleLeft(data.calories)}
+                        curve={curveMonotoneX}
+                        stroke="blue"
+                        strokeWidth={1.5}
+                    />}
+                    {props.showWeight && userData.map((data, index) => {
                         return (
                             <circle
                                 key={index}
@@ -183,22 +238,14 @@ export default function Userchart () {
                             />
                         )
                     })}
-                    <LinePath
-                        data={userData}
-                        x={data => xScale(new Date(data.date))}
-                        y={data => yScaleLeft(data.calories)}
-                        curve={curveMonotoneX}
-                        stroke="blue"
-                        strokeWidth={1.5}
-                    />
-                    <LinePath
+                    {props.showWeight && <LinePath
                         data={userData}
                         x={data => xScale(new Date(data.date))}
                         y={data => yScaleRight(data.weight)}
                         curve={curveMonotoneX}
                         stroke="red"
                         strokeWidth={1.5}
-                    />
+                    />}
                     {/* ================ DATA ================ */}
                 </Group>
 
@@ -206,14 +253,14 @@ export default function Userchart () {
                     <>
                     {/* =========== DATA HIGHLIGHT ON HOVER =========== */}
                         <Line 
-                            from={{ x: tooltipLeft, y: height }}
+                            from={{ x: tooltipLeft, y: graphDims.height }}
                             to={{ x: tooltipLeft, y: 0 }}
                             stroke={'#aaa'}
                             strokeWidth={2}
                             pointerEvents="none"
                         />
                         {/* calorie data marker */}
-                        <circle
+                        {props.showCalories && <circle
                             cx={tooltipLeft}
                             cy={yScaleLeft(getCalories(tooltipData))}
                             r={4}
@@ -221,9 +268,9 @@ export default function Userchart () {
                             stroke={'white'}
                             strokeWidth={2}
                             pointerEvents="none"
-                        />
+                        />}
                         {/* weight data marker */}
-                        <circle
+                        {props.showWeight && <circle
                             cx={tooltipLeft}
                             cy={yScaleRight(getWeight(tooltipData))}
                             r={4}
@@ -231,7 +278,7 @@ export default function Userchart () {
                             stroke={'white'}
                             strokeWidth={2}
                             pointerEvents="none"
-                        />
+                        />}
                     {/* =========  END DATA HIGHLIGHT ON HOVER ========= */}
                     </>
                 )}
@@ -241,7 +288,7 @@ export default function Userchart () {
                 <>
                     <TooltipInPortal
                         key={Math.random()}
-                        top={height/8}
+                        top={0}
                         left={tooltipLeft}
                         className='data-tooltip'
                     >
@@ -252,7 +299,7 @@ export default function Userchart () {
                     </TooltipInPortal>
                     <TooltipInPortal
                         key={Math.random()}
-                        top={height - 25}
+                        top={graphDims.height - 25}
                         left={tooltipLeft ? tooltipLeft - 52 : tooltipLeft}
                         className='date-tooltip'
                     >

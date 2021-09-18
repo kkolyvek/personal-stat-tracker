@@ -1,0 +1,11 @@
+.input-area-wrapper {
+    height: 100px;
+    width: 1280px;
+    margin: 0 104px 10em 104px;
+    padding: 1em;
+
+    border-radius: 16px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+
+    display: flex;
+}
