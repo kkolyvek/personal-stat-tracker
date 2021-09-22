@@ -120,7 +120,9 @@ export default function Authwrapper() {
             />
           </Route>
           <Route path="/:user">
-            <Userpage />
+            <Userpage
+              user={user}
+            />
           </Route>
         </Switch>
       </Router>

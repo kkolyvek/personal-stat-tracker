@@ -15,7 +15,6 @@
 .logo-item {
   font-family: "Luckiest Guy", cursive;
   font-weight: 800;
-  font-size: 3em;
   color: #454545;
   text-decoration: none;
   /* text-shadow: 2px 2px 1px black; */
@@ -52,4 +51,36 @@
 .expand-btn.isdown {
   transform: rotate (180deg);
   transition: transform 0.25s linear;
+}
+
+/* MEDIA QUERIES FOR RESPONSIVENESS */
+@media screen and (min-width: 576px) {
+  .logo-item {
+      font-size: 2em;
+  }
+}
+@media screen and (min-width: 768px) {
+  .logo-item {
+      font-size: 2em;
+  }
+}
+@media screen and (min-width: 992px) {
+  .logo-item {
+      font-size: 2em;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .logo-item {
+      font-size: 3em;
+  }
+}
+@media screen and (min-width: 1400px) {
+  .logo-item {
+      font-size: 3em;
+  }
+}
+@media screen and (max-width: 575px) {
+  .logo-item {
+    font-size: 1.5em;
+  }
 }
