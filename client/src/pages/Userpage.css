@@ -16,6 +16,26 @@
     justify-content: space-between;
 }
 
+.timescale-toggler-button {
+    margin: 0 0 8px 4px;
+    padding: 3px 6px;
+    background: none;
+    border: none;
+    border-radius: 3px;
+}
+
+.timescale-toggler-button:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.chart-data-togglers {
+    margin-right: 8px;
+}
+
+.chart-data-toggler-checkbox {
+    margin: 0 2px 0 10px;
+}
+
 .user-data {
     width: 75%;
 }

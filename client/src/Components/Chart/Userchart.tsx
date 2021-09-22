@@ -80,7 +80,8 @@ export type AreaProps = {
 
 export interface Props {
     showCalories: boolean,
-    showWeight: boolean
+    showWeight: boolean,
+    timeScale: string,
 }
 
 export default function Userchart (props: Props) {
@@ -149,10 +150,20 @@ export default function Userchart (props: Props) {
     
     // DATA SCALING
     // =============================================================================
+    
+    // determing starting date from data:
+    let startingDate = userData[0].date;
+    if (props.timeScale === '7d') {
+        startingDate = userData[userData.length - 7] ? userData[userData.length - 7].date : userData[0].date;
+    } else if (props.timeScale === '1m') {
+        startingDate = userData[userData.length - 31] ? userData[userData.length - 31].date : userData[0].date;
+    } else if (props.timeScale === '1y') {
+        startingDate = userData[userData.length - 365] ? userData[userData.length - 365].date : userData[0].date;
+    }
 
     const xScale = scaleTime({
         domain: [
-            new Date(userData[0].date),
+            new Date(startingDate),
             new Date(userData[userData.length - 1].date)
         ],
         range: [0, graphDims.width],
