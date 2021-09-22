@@ -1,11 +1,23 @@
 .input-area-wrapper {
-    height: 100px;
-    width: 1280px;
-    margin: 0 104px 10em 104px;
-    padding: 1em;
-
     border-radius: 16px;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
 
     display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.date-picker {
+    font-size: 1.2em;
+    border-radius: 3px;
+    border: 1px solid black;
+    align-self: center;
+    margin-top: 0.3em;
+}
+
+.input-line-item {
+    margin: 1em 10px;
+    display: flex;
+    flex-direction: column;
+    max-width: 200px;
 }

@@ -85,17 +85,60 @@ export interface Props {
 
 export default function Userchart (props: Props) {
     // make graph size responsize to client browser size - maintaining 1920p aspect ratio
+    // follow Bootstraps CSS breakpoints for a clean look:
+    // x-small:  < 576px -- content width: 100%
+    // small:   >= 576px -- content width: 540px
+    // medium:  >= 768px -- content width: 720px
+    // large:   >= 992px -- content width: 960px
+    // xlarge:  >= 1200px -- content width: 1140px
+    // xxlarge: >= 1400px -- content width: 1320px
+    // chart is 75% of content width
+
     const windowWidth = window.innerWidth;
+    const chartWidthPercentage = 0.75;
+    let contentWidth = 1320 * chartWidthPercentage;
+    if (windowWidth >= 1400) {
+        contentWidth = 1320 * chartWidthPercentage;
+    } else if (windowWidth >= 1200) {
+        contentWidth = 1140 * chartWidthPercentage;
+    } else if (windowWidth >= 992) {
+        contentWidth = 960 * chartWidthPercentage;
+    } else if (windowWidth >= 768) {
+        contentWidth = 720;
+    } else if (windowWidth >= 576) {
+        contentWidth = 540;
+    } else {
+        contentWidth = windowWidth;
+    };
+
     const [graphDims, setGraphDims] = useState({
-        width: windowWidth > 1300 ? 1280 : windowWidth - 104,
-        height: windowWidth > 1300 ? 720 : 1080 * (windowWidth - 104) / 1920,
+        width: contentWidth,
+        height: 1080 * contentWidth / 1920,
     });
+
     useEffect(() => {
         const handleResize = () => {
-            setGraphDims({
-                width: windowWidth > 1300 ? 1280 : windowWidth - 104,
-                height: windowWidth > 1300 ? 720 : 1080 * (windowWidth - 104) / 1920,
-            });
+            let newWidth = graphDims.width;
+            if (windowWidth >= 1400) {
+                newWidth = 1320 * chartWidthPercentage;
+            } else if (windowWidth >= 1200) {
+                newWidth = 1140 * chartWidthPercentage;
+            } else if (windowWidth >= 992) {
+                newWidth = 960 * chartWidthPercentage;
+            } else if (windowWidth >= 768) {
+                newWidth = 720;
+            } else if (windowWidth >= 576) {
+                newWidth = 540;
+            } else {
+                newWidth = windowWidth;
+            };
+
+            if (newWidth !== graphDims.width) {
+                setGraphDims({
+                    width: newWidth,
+                    height: 1080 * newWidth / 1920,
+                });
+            };
         };
         window.addEventListener('resize', handleResize);
         return () => {
